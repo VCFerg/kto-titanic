@@ -5,8 +5,12 @@ description = "Kto Titanic Project"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "boto3>=1.42.78",
     "fire>=0.7.1",
     # TODO : Ajouter les dépendances transverses manquantes
+    "mlflow>=3.10.1",
+    "setuptools>=80.9.0",
+    "ydata-profiling>=4.18.1",
 ]
 
 [project.scripts]
