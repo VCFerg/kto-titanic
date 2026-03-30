@@ -15,6 +15,7 @@ PROFILING_PATH = "profiling_reports"
 
 def load_data(path: str) -> str:
   logging.warning(f"load_data on path : {path}")
+  logging.warning(f"load_data on path : {path}")
 
   with tempfile.TemporaryDirectory() as tmp_dir: # Utilisation d'un dossier temporaire
     local_path = Path(tmp_dir, "data.csv") # Fichier temporaire pour stocker les données
