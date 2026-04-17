@@ -35,7 +35,7 @@ api = [
     "pyjwt[crypto]>=2.8.0",
 ]
 training = [
-    "mlflow[extras]==3.8.1",
+    "mlflow[extras]==3.10.1",
     "setuptools==80.9.0", # for ydata-profiling dependency, bug with python 3.13
     # TODO : Ajouter les dépendances manquantes pour l'entrainement
     "ydata-profiling==4.18.0",
