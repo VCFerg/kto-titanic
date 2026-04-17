@@ -1,4 +1,4 @@
-docker login -u="QUAY_ROBOT_USERNAME_A_SAISIR" -p="QUAY_ROBOT_TOKEN_A_SAISIR" quay.io # <--- mettez ici les informations de votre robot quay.io
+docker login -u="louissoyez+titanic" -p="L0V5ZZZIPLFC9PJQLDOC9OVLJOX0IORFBNP7Q1PI5HSDFERKUPAFETMQWP7G84YT" quay.io # <--- mettez ici les informations de votre robot quay.io
 kubectl config set-cluster openshift-cluster --server=OPENSHIFT_SERVER_A_SAISIR # <--- mettez ici l'url de votre cluster OpenShift
 kubectl config set-credentials openshift-credentials --token=secrets.OPENSHIFT_TOKEN_A_SAISIR # <--- mettez ici le token d'accès à votre cluster OpenShift
 kubectl config set-context openshift-context --cluster=openshift-cluster --user=openshift-credentials --namespace=vars.OPENSHIFT_USERNAME_A_SAISIR-dev # <--- mettez ici votre namespace OpenShift
