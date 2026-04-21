@@ -21,6 +21,7 @@ WORKDIR /app
 
 # Installation de UV (un gestionnaire de dépendances)
 RUN pip install --no-cache-dir uv
+ENV PATH="/root/.local/bin:$PATH"
 # Copie des fichiers nécessaires pour installer les dépendances
 COPY pyproject.toml uv.lock README.md ./
 # Copie du code source nécessaire à l'exécution de l'expérience
