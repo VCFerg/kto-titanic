@@ -13,6 +13,12 @@ import pandas as pd
 
 from fastapi import FastAPI, Depends
 # TODO : Importer les dépendances OTEL pour le monitoring
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter as HTTPSpanExporter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.sdk.resources import Resource
 
 from titanic.api.auth import verify_token
 
@@ -21,6 +27,20 @@ JAEGER_ENDPOINT = os.getenv("JAEGER_ENDPOINT", "http://jaeger.louissoyez-dev.svc
 
 # TODO : Intégrer les configurations d'OTEL et instancier le tracer. Peut être fait plus tard si le cours
 # sur l'observabilité n'est pas encore donné
+
+JAEGER_ENDPOINT = os.getenv("JAEGER_ENDPOINT", "http://jaeger.louissoyez-dev.svc.cluster.local:4318/v1/traces")
+
+resource = Resource(attributes={"service.name": "titanic-inference-api"})
+
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(HTTPSpanExporter(endpoint=JAEGER_ENDPOINT))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(__name__)
+
+app = FastAPI()
+FastAPIInstrumentor.instrument_app(app)
 
 # TODO : Instancier l'application FastAPI
 app = FastAPI()
@@ -56,13 +76,22 @@ def health() -> dict:
 
 @app.post("/infer")
 def infer(passenger: Passenger, token: str = Depends(verify_token("api:read"))) -> list:
+    with tracer.start_as_current_span("model_inference") as span:
+        span.set_attribute("passenger.pclass", passenger.pclass.value)
+        span.set_attribute("passenger.sex", passenger.sex.value)
+        span.set_attribute("passenger.sibsp", passenger.sibSp)
+        span.set_attribute("passenger.parch", passenger.parch)
 
-    df_passenger = pd.DataFrame([passenger.to_dict()])
-    df_passenger["Sex"] = pd.Categorical(df_passenger["Sex"], categories=[Sex.FEMALE.value, Sex.MALE.value])
-    df_to_predict = pd.get_dummies(df_passenger)
+        df_passenger = pd.DataFrame([passenger.to_dict()])
+        df_passenger["Sex"] = pd.Categorical(df_passenger["Sex"], categories=[Sex.FEMALE.value, Sex.MALE.value])
+        df_to_predict = pd.get_dummies(df_passenger)
 
-    res = model.predict(df_to_predict)
+        res = model.predict(df_to_predict)
 
-    return res.tolist()
+        span.set_attribute("prediction.result", int(res[0]))
+        span.add_event("prediction_completed", {"result": int(res[0])})
+
+        return res.tolist()
+    ()
 
 
